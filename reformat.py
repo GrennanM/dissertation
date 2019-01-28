@@ -47,8 +47,7 @@ for line in lines:
     line = re.sub('<date>.*?\(', '(<date>', line)
     line = re.sub('\).*</date>', '</date>)', line)
 
-    # replace & with , (& caused a problem with build) (CHECK!)
-    # line = re.sub('&', ',', line)
+    # & caused a problem with build (CHECK!)
 
     # remove any blank lines
     if line != '\n':
