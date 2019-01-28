@@ -6,7 +6,7 @@ GROBID: https://github.com/kermitt2/grobid
 import re
 
 # read lines of file into a list
-lines = [line for line in open('sample_to_reformat.txt')]
+lines = [line for line in open('/home/markg/dissertation/github/datasets/coraReformatted/sample_to_reformat.txt')]
 ammendedlines = []
 
 for line in lines:
@@ -35,19 +35,26 @@ for line in lines:
     line = re.sub('<address>', '<pubPlace>', line)
     line = re.sub('</address>', '</pubPlace>', line)
 
-    # replace <year> containing brackets (CHECK!)
-    line = re.sub('<year>.*?\(', '(<date>', line)
-    line = re.sub('\).*</year>', '</date>)', line)
+    # replace booktitle
+    line = re.sub('<booktitle>', '<title level="m">', line)
+    line = re.sub('</booktitle>', '</title>', line)
 
-    # replace year as date (no brackets) (CHECK!)
-    line = re.sub('<year>', '<date>', line)
-    line = re.sub('</year>', '</date>', line)
+    # kibl and utgo file only
+    # # replace <year> containing brackets (CHECK!)
+    # line = re.sub('<year>.*?\(', '(<date>', line)
+    # line = re.sub('\).*</year>', '</date>)', line)
+    #
+    # # replace year as date (no brackets) (CHECK!)
+    # line = re.sub('<year>', '<date>', line)
+    # line = re.sub('</year>', '</date>', line)
 
-    # remove brackets in date if present
+    # remove brackets in date if present (fahl file only)
     line = re.sub('<date>.*?\(', '(<date>', line)
     line = re.sub('\).*</date>', '</date>)', line)
 
-    # & caused a problem with build (CHECK!)
+    # & caused a problem with build
+    # replaced & with ','
+    line = re.sub(' &', ',', line)
 
     # remove any blank lines
     if line != '\n':
