@@ -49,8 +49,8 @@ for line in lines:
     # line = re.sub('</year>', '</date>', line)
 
     # remove brackets in date if present (fahl file only)
-    line = re.sub('<date>.*?\(', '(<date>', line)
-    line = re.sub('\).*</date>', '</date>)', line)
+    line = re.sub('<date>\(|<date>.\(|<date>..\(|<date>...\(', '(<date>', line)
+    line = re.sub('\)</date>|\).</date>|\)..</date>|\)...</date>', '</date>)', line)
 
     # & caused a problem with build
     # replaced & with ','
