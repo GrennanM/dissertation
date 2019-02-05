@@ -6,12 +6,14 @@ GROBID: https://github.com/kermitt2/grobid
 import re
 
 # read lines of file into a list
-lines = [line for line in open('/home/markg/dissertation/github/datasets/coraReformatted/sample_to_reformat.txt')]
+lines = [line for line in open(
+    '/home/markg/dissertation/github/datasets/coraReformatted/sample_to_reformat.txt')]
 ammendedlines = []
 
 for line in lines:
     # remove <NEWREFERENCE> with 3, 2 or 1` digits
-    line = re.sub(r'<NEWREFERENCE>[0-9][0-9][0-9]|<NEWREFERENCE>[0-9][0-9]|<NEWREFERENCE>[0-9]|<NEWREFERENCE>', '', line)
+    line = re.sub(
+        r'<NEWREFERENCE>[0-9][0-9][0-9]|<NEWREFERENCE>[0-9][0-9]|<NEWREFERENCE>[0-9]|<NEWREFERENCE>', '', line)
 
     # replace anything before <author> with <bibl><author>
     line = re.sub('.*<author>', '<bibl><author>', line)
@@ -50,10 +52,14 @@ for line in lines:
 
     # remove brackets in date if present (fahl file only)
     line = re.sub('<date>\(|<date>.\(|<date>..\(|<date>...\(', '(<date>', line)
-    line = re.sub('\)</date>|\).</date>|\)..</date>|\)...</date>', '</date>)', line)
+    line = re.sub('\)</date>|\).</date>|\)..</date>|\)...</date>',
+                  '</date>)', line)
 
     # & caused a problem with build
     # replaced & with ','
+    line = re.sub(' &', ',', line)
+
+    # replace special characters causing errors in build,'
     line = re.sub(' &', ',', line)
 
     # remove any blank lines
