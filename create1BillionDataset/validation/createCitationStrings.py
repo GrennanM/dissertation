@@ -2,8 +2,8 @@ import re
 import pandas as pd
 import numpy as np
 
-originalData = '/home/markg/dissertation/github/create1BillionDataset/MARTIN_output_strings_50_rand915.csv'
-annotatedData = pd.read_csv(originalData)
+originalDataFilePath = '/home/markg/dissertation/github/create1BillionDataset/MARTIN_output_strings_50_rand915.csv'
+annotatedData = pd.read_csv(originalDataFilePath)
 
 # create new column
 annotatedData['newString'] = np.nan
@@ -53,8 +53,9 @@ for line in annotatedData['annotated']:
     newRows.append(line)
 
 annotatedData['newString'] = newRows
+annotatedData.drop(columns=['Unnamed: 7'], inplace=True)
 
-annotatedData.to_csv('dataWithStrings.csv', index=True)
+annotatedData.to_csv('dataWithStrings.csv', index=False)
 
 
 # # read lines of file into a list
