@@ -64,7 +64,8 @@ var XMLSerializer = require('xmldom').XMLSerializer;
 var serializer = new XMLSerializer();
 
 //taken from http://docs.citationstyles.org/en/1.0.1/specification.html#appendix-iii-types
-var citationTypeIndex = {"article":0,
+var citationTypeDict = {
+"article":0,
 "article-magazine":1,
 "article-newspaper":2,
 "article-journal":3,
@@ -98,7 +99,19 @@ var citationTypeIndex = {"article":0,
 "speech":31,
 "thesis":32,
 "treaty":33,
-"webpage":34}
+"webpage":34,
+"proceedings-article": 35,
+'reference-entry': 36,
+'journal-issue': 37,
+'reference-book': 38,
+'dissertation': 39,
+'posted-content': 40}
+
+// index to add new elements to dictionary
+var nextIndex = Object.keys(citationTypeDict).length-1;
+
+//to log any added citationTypes
+var addedCitationTypes = {};
 
 
 //This folder should have all the CSL files
@@ -264,16 +277,20 @@ for (var i = 0, len = csls.length; i < len; i++) {
     if (annotatedstring != undefined && annotatedstring.length && annotatedstring[0] != undefined) {
       annotatedstring = annotatedstring[0].replace(/<\/issued>([^<]*)<issued>/g, "$1").replace(/&amp;/g, "&");
 
+      var currentCitationType = citations[c]["type"];
 
-      // Note: certain types still not in citationTypeIndex e.g. proceedings-article
-      // check if in dict
-      // if not add to dict
-      // then add to file
-      console.log(citations[c]["type"] + ": " + citationTypeIndex[citations[c]["type"]]);
-      console.log("-------------------------------");
+      // if citationType not in dictionary, append to end of dictionary
+      if (!(currentCitationType in citationTypeDict)){
+        citationTypeDict[currentCitationType] = nextIndex;
+        addedCitationTypes[currentCitationType] = nextIndex;
+        nextIndex += 1;
+        console.log("The following citationType has been added to dictionary: ", currentCitationType);
+        console.log("Index: ", nextIndex);
+      }
+
       fs.appendFileSync(output_file, csvline([
         citations[c]["DOI"],
-        // citationTypeIndex[citations[c]["type"]], //citationType index FIX THIS!
+        citationTypeDict[currentCitationType].toString(), //citationType
         i.toString(), //citationStyle index
         annotatedstring,
       ]) + "\n");
@@ -287,6 +304,8 @@ for (var i = 0, len = csls.length; i < len; i++) {
 var failedBibs = new Set(failedbibliographies);
 
 console.log("Failed ones:");
-console.log(failedbibliographies);
+console.log(failedBibs);
 console.log('Saved CSV to ' + output_file);
+console.log("Added the following to citationType dictionary: \n",
+            addedCitationTypes)
 console.timeEnd("script");
