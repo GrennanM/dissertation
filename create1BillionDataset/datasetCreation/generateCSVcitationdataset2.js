@@ -174,8 +174,8 @@ for (var i in files) {
 
 // file path and names
 var outputFilePath = "/home/markg/dissertation/previousGithub1B/ouput/"
-var outputFileName = "output_" + fileNameRoot;
-var output_file = outputFilePath + outputFileName
+var outputFileName = "output_" + fileNameRoot.replace(".json", ".csv");
+var output_file = outputFilePath + outputFileName;
 var output = "";
 
 //clear the file
@@ -256,8 +256,8 @@ for (var i = 0, len = csls.length; i < len; i++) {
         try {
           if (tagname.slice(-5) == "-part") {
             variable = text[id].getAttribute("name");
-            variable = text[id].getAttribute("variable");
           } else {
+            variable = text[id].getAttribute("variable");
           }
         } catch (error) {
           //console.log(tex[id]);
@@ -304,7 +304,7 @@ for (var i = 0, len = csls.length; i < len; i++) {
 
       fs.appendFileSync(output_file, csvline([
         citations[c]["DOI"],
-        citationTypeDict[currentCitationType].toString(), //citationType
+        citationTypeDict[currentCitationType].toString(), //citationType index
         i.toString(), //citationStyle index
         annotatedstring,
       ]) + "\n");
