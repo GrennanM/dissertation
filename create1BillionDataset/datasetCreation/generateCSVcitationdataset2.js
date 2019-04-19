@@ -133,7 +133,7 @@ const cslFolder = './csl/';
 
 //1. Start reading input file
 if (process.argv[3]) {
-  var fileName = './' + process.argv[3];
+  var fileName = '/home/markg/dissertation/previousGithub1B/1-Billion-Citation-Dataset/dataset-creation/inputFiles/' + process.argv[3];
   var fileNameRoot = process.argv[3];
   fs.appendFileSync('log.txt', "Reading input file: " + fileNameRoot + "\n");
 } else {
@@ -173,8 +173,8 @@ for (var i in files) {
 
 
 // file path and names
-var outputFilePath = "/home/markg/dissertation/previousGithub1B/ouput/"
-var outputFileName = "output_" + fileNameRoot.replace(".json", ".csv");
+var outputFilePath = "/home/markg/dissertation/previousGithub1B/1-Billion-Citation-Dataset/dataset-creation/outputFiles/"
+var outputFileName = "output_" + fileNameRoot.replace(".json", "") + ".csv";
 var output_file = outputFilePath + outputFileName;
 var output = "";
 
@@ -327,3 +327,6 @@ if (failedBibs.size != 0){
 
 fs.appendFileSync('log.txt', "\nTime taken: " + totalTime.toString() + " mins" + "\n");
 fs.appendFileSync('log.txt', "----------------------------------------- \n");
+
+console.log("Completed")
+console.log("-----------------------")
