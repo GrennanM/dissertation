@@ -1,4 +1,4 @@
-//Author: M.Schibel 2018
+//Author: M.Schibel 2018 & M. Grennan 2018
 //License: CC0 1.0 Universal - https://creativecommons.org/publicdomain/zero/1.0/ (in other words: feel free to use it)
 function csvline(fields) {
   var string = "";
@@ -45,13 +45,13 @@ function makebib(styleString, keys) {
     var bib = engine.makeBibliography();
     return bib[1];
   } catch (error) {
-    console.error(error);
-    fs.appendFileSync('log.txt', 'Error with ' + csls[i] + "\n" + error);
+    // console.error("Error with: ", csls[i]);
+    failedBibs.add(csls[i]);
   }
 }
 
-//console.log(process.argv);
-console.time("script");
+var failedBibs = new Set();
+var beforeTime = Date.now()
 
 //0. require depenancies
 var fs = require('fs');
@@ -65,50 +65,64 @@ var serializer = new XMLSerializer();
 
 //taken from http://docs.citationstyles.org/en/1.0.1/specification.html#appendix-iii-types
 var citationTypeDict = {
-"article":0,
-"article-magazine":1,
-"article-newspaper":2,
-"article-journal":3,
-"bill":4,
-"book":5,
-"broadcast":6,
-"chapter":7,
-"dataset":8,
-"entry":9,
-"entry-dictionary":10,
-"entry-encyclopedia":11,
-"figure":12,
-"graphic":13,
-"interview":14,
-"legislation":15,
-"legal_case":16,
-"manuscript":17,
-"map":18,
-"motion_picture":19,
-"musical_score":20,
-"pamphlet":21,
-"paper-conference":22,
-"patent":23,
-"post":24,
-"post-weblog":25,
-"personal_communication":26,
-"report":27,
-"review":28,
-"review-book":29,
-"song":30,
-"speech":31,
-"thesis":32,
-"treaty":33,
-"webpage":34,
-"proceedings-article": 35,
-'reference-entry': 36,
-'journal-issue': 37,
-'reference-book': 38,
-'dissertation': 39,
-'posted-content': 40}
+  "article": 0,
+  "article-magazine": 1,
+  "article-newspaper": 2,
+  "article-journal": 3,
+  "bill": 4,
+  "book": 5,
+  "broadcast": 6,
+  "chapter": 7,
+  "dataset": 8,
+  "entry": 9,
+  "entry-dictionary": 10,
+  "entry-encyclopedia": 11,
+  "figure": 12,
+  "graphic": 13,
+  "interview": 14,
+  "legislation": 15,
+  "legal_case": 16,
+  "manuscript": 17,
+  "map": 18,
+  "motion_picture": 19,
+  "musical_score": 20,
+  "pamphlet": 21,
+  "paper-conference": 22,
+  "patent": 23,
+  "post": 24,
+  "post-weblog": 25,
+  "personal_communication": 26,
+  "report": 27,
+  "review": 28,
+  "review-book": 29,
+  "song": 30,
+  "speech": 31,
+  "thesis": 32,
+  "treaty": 33,
+  "webpage": 34,
+  "proceedings-article": 35,
+  'reference-entry': 36,
+  'journal-issue': 37,
+  'reference-book': 38,
+  'dissertation': 39,
+  'posted-content': 40,
+  'standard': 41,
+  'other': 42,
+  'monograph': 43,
+  'book-part': 44,
+  'peer-review': 45,
+  "journal": 46,
+  "proceedings": 47,
+  "book-series": 48,
+  "report-series": 49,
+  "book-section": 50,
+  "book-set": 51,
+  "journal-volume": 52,
+  "proceedings-series": 53
+}
 
 // index to add new elements to dictionary
-var nextIndex = Object.keys(citationTypeDict).length-1;
+var nextIndex = Object.keys(citationTypeDict).length - 1;
 
 //to log any added citationTypes
 var addedCitationTypes = {};
@@ -116,11 +130,12 @@ var addedCitationTypes = {};
 
 //This folder should have all the CSL files
 const cslFolder = './csl/';
-//the output
 
 //1. Start reading input file
 if (process.argv[3]) {
   var fileName = './' + process.argv[3];
+  var fileNameRoot = process.argv[3];
+  fs.appendFileSync('log.txt', "Reading input file: " + fileNameRoot + "\n");
 } else {
   var fileName = './cr20.json';
 }
@@ -157,14 +172,16 @@ for (var i in files) {
 }
 
 
-// file path
-var output_file = "/home/markg/dissertation/previousGithub1B/ouput/output_strings_" +
-  (count) + "_rand" + Math.floor(Math.random() * 1000) + ".csv";
+// file path and names
+var outputFilePath = "/home/markg/dissertation/previousGithub1B/ouput/"
+var outputFileName = "output_" + fileNameRoot;
+var output_file = outputFilePath + outputFileName
 var output = "";
+
 //clear the file
 fs.writeFileSync(output_file, "");
 //Start creating the output file--
-fs.appendFileSync('log.txt', "Writing file " + output_file + "\n");
+fs.appendFileSync('log.txt', "Writing file: " + outputFileName + "\n");
 
 var citation_keys = Object.keys(citations);
 // https://groups.google.com/forum/#!topic/zotero-dev/2i_-1EZZbUU
@@ -186,8 +203,6 @@ bibtex = bibtex[1];
 
 //create header
 fs.appendFileSync(output_file, csvline(["doi", "articleType", "citationStyle", "citationStringAnnotated"]) + "\n");
-
-var failedbibliographies = [];
 
 // changed i < length to 1
 for (var i = 0, len = csls.length; i < len; i++) {
@@ -241,8 +256,8 @@ for (var i = 0, len = csls.length; i < len; i++) {
         try {
           if (tagname.slice(-5) == "-part") {
             variable = text[id].getAttribute("name");
-          } else {
             variable = text[id].getAttribute("variable");
+          } else {
           }
         } catch (error) {
           //console.log(tex[id]);
@@ -255,7 +270,6 @@ for (var i = 0, len = csls.length; i < len; i++) {
           newprefix = "<" + variable + ">";
           newsuffix = "</" + variable + ">"; //match(/[a-zA-Z0-9_-]+/)[0]
         }
-        //        text[id].setAttribute("prefix",(text[id].getAttribute("prefix").replace("&","&amp;"))+newprefix);
         try {
           text[id].setAttribute("prefix", escapeXml2(text[id].getAttribute("prefix")) + newprefix);
           text[id].setAttribute("suffix", newsuffix + escapeXml2(text[id].getAttribute("suffix")));
@@ -280,12 +294,12 @@ for (var i = 0, len = csls.length; i < len; i++) {
       var currentCitationType = citations[c]["type"];
 
       // if citationType not in dictionary, append to end of dictionary
-      if (!(currentCitationType in citationTypeDict)){
+      if (!(currentCitationType in citationTypeDict)) {
         citationTypeDict[currentCitationType] = nextIndex;
         addedCitationTypes[currentCitationType] = nextIndex;
         nextIndex += 1;
-        console.log("The following citationType has been added to dictionary: ", currentCitationType);
-        console.log("Index: ", nextIndex);
+        fs.appendFileSync('log.txt', "Added the following to citationType dictionary: " +
+                          currentCitationType + " at index: " + nextIndex.toString());
       }
 
       fs.appendFileSync(output_file, csvline([
@@ -296,16 +310,20 @@ for (var i = 0, len = csls.length; i < len; i++) {
       ]) + "\n");
     } else {
       annotatedstring = "";
-      failedbibliographies.push(i + ". " + csls[i]);
     }
   }
 }
 
-var failedBibs = new Set(failedbibliographies);
+var totalTime = (Date.now() - beforeTime) / 60000; //convert from ms to minutes
 
-console.log("Failed ones:");
-console.log(failedBibs);
-console.log('Saved CSV to ' + output_file);
-console.log("Added the following to citationType dictionary: \n",
-            addedCitationTypes)
-console.timeEnd("script");
+var failedBibsValues = failedBibs.values()
+
+if (failedBibs.size != 0){
+    fs.appendFileSync('log.txt', "\nThe following citation styles failed: \n");
+    for (var i = 0; i < failedBibs.size; i++){
+        fs.appendFileSync('log.txt', failedBibsValues.next().value + "\n");
+    }
+}
+
+fs.appendFileSync('log.txt', "\nTime taken: " + totalTime.toString() + " mins" + "\n");
+fs.appendFileSync('log.txt', "----------------------------------------- \n");
